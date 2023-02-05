@@ -14,28 +14,20 @@
  * Description: Type-definitions of unsigned integral types.
  * 
  *************************************************************/
-typedef unsigned char u8;
-typedef unsigned short int u16;
-typedef unsigned int u32;
-typedef unsigned long long int u64;
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long long int uint64_t;
 
 
 /*************************************************************
  * Description: Type-definitions of signed integral types.
  * 
  *************************************************************/
-typedef signed char s8;
-typedef signed short int s16;
-typedef signed int s32;
-typedef signed long long int s64;
-
-
-/*************************************************************
- * Description: Type-definitions of floating-point types.
- * 
- *************************************************************/
-typedef float f32;
-typedef double f64;
+typedef signed char int8_t;
+typedef signed short int int16_t;
+typedef signed int int32_t;
+typedef signed long long int int64_t;
 
 
 /*************************************************************

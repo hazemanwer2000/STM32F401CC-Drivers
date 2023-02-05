@@ -10,17 +10,13 @@
 #ifndef __RCC_PRIV_H__
 #define __RCC_PRIV_H__
 
-#include "RCC.h"
-
 
 /*************************************************************
- * Description: Set system clock source on and wait until ready.
- * Parameters:
- *      [X]
- * Return:
- *      None.
+ * Description: Timeout periods (in clock cycles) for several API calls.
+ *
  *************************************************************/
-static void RCC_voidSetSysClkOnAndWait(RCC_tenuSysClk Cpy_enuSysClk);
+#define RCC_selectSystemClock_TIMEOUT		1000
+#define RCC_setSystemClockState_TIMEOUT		1000
 
 
 #endif /* __RCC_PRIV_H__ */

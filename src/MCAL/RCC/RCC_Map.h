@@ -8,63 +8,63 @@
  *
  *************************************************************/
 
-#include "Std_Types.h"
 
+#ifndef __RCC_MAP_H__
+#define __RCC_MAP_H__
 
 
 /*************************************************************
  * Description: Register layout of the RCC module.
  *
  *************************************************************/
-typedef struct
-{
-	u32 CR;					/* Usage: Enable HSI, HSE, PLL, CSS */
-	u32 PLLCFGR;			/* Usage: Configure PLL */
-	u32 CFGR;				/* Usage: AHB, APB1, APB2 prescale, System clock switch/status */
-	u32 CIR;
+typedef struct {
+	uint32_t CR;
+	uint32_t PLLCFGR;
+	uint32_t CFGR;
+	uint32_t CIR;
 
-	u32 AHB1RSTR;
-	u32 AHB2RSTR;
+	uint32_t AHB1RSTR;
+	uint32_t AHB2RSTR;
 
-	u32 RESERVED0[2];
+	uint32_t RESERVED0[2];
 
-	u32 APB1RSTR;
-	u32 APB2RSTR;
+	uint32_t APB1RSTR;
+	uint32_t APB2RSTR;
 
-	u32 RESERVED1[2];
+	uint32_t RESERVED1[2];
 
-	u32 AHB1ENR;
-	u32 AHB2ENR;
+	uint32_t AHB1ENR;
+	uint32_t AHB2ENR;
 
-	u32 RESERVED2[2];
+	uint32_t RESERVED2[2];
 
-	u32 APB1ENR;
-	u32 APB2ENR;
+	uint32_t APB1ENR;
+	uint32_t APB2ENR;
 
-	u32 RESERVED3[2];
+	uint32_t RESERVED3[2];
 
-	u32 AHB1LPENR;
-	u32 AHB2LPENR;
+	uint32_t AHB1LPENR;
+	uint32_t AHB2LPENR;
 
-	u32 RESERVED4[2];
+	uint32_t RESERVED4[2];
 
-	u32 APB1LPENR;
-	u32 APB2LPENR;
+	uint32_t APB1LPENR;
+	uint32_t APB2LPENR;
 
-	u32 RESERVED5[2];
+	uint32_t RESERVED5[2];
 
-	u32 BDCR;
-	u32 CSR;
+	uint32_t BDCR;
+	uint32_t CSR;
 
-	u32 RESERVED6[2];
+	uint32_t RESERVED6[2];
 
-	u32 SSCGR;
-	u32 PLLI2SCFGR;
+	uint32_t SSCGR;
+	uint32_t PLLI2SCFGR;
 
-	u32 RESERVED7[1];
+	uint32_t RESERVED7[1];
 
-	u32 DCKCFGR;
-} __attribute__((packed, aligned(1))) IO_tstrucRCC;
+	uint32_t DCKCFGR;
+} __attribute__((packed, aligned(1))) RCC_t;
 
 
 
@@ -176,9 +176,9 @@ typedef struct
  *************************************************************/
 #define PWREN						28
 
-#define I2C3RN						23
-#define I2C2RN						22
-#define I2C1RN						21
+#define I2C3EN						23
+#define I2C2EN						22
+#define I2C1EN						21
 
 #define USART2EN					17
 
@@ -229,7 +229,7 @@ typedef struct
  * Description: Base address of RCC module in the uC.
  *
  *************************************************************/
-#define IO_RCC_BASE_ADD					0x40023800
+#define	RCC_BASE					0x40023800
 
 
 
@@ -237,4 +237,7 @@ typedef struct
  * Description: Structure pointer-macro to RCC module.
  *
  *************************************************************/
-#define RCC 				((volatile IO_tstrucRCC *) IO_RCC_BASE_ADD)
+#define RCC 				((volatile RCC_t *) RCC_BASE)
+
+
+#endif /* __RCC_MAP_H__ */

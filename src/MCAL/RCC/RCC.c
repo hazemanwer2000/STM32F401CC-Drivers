@@ -7,124 +7,155 @@
  * 
  *************************************************************/
 
-#include "RCC_Cfg.h"
-#include "RCC_Priv.h"
-#include "RCC.h"
-
-#include "MCAL/UTIL/IO_Map_RCC.h"
-#include "UTIL/Bit_Utils.h"
-#include "UTIL/Utils.h"
 #include "MCAL/UTIL/Std_Types.h"
-
+#include "RCC_Map.h"
+#include "RCC.h"
+#include "RCC_Priv.h"
+#include "RCC_Cfg.h"
+#include "UTIL/Bit_Utils.h"
 
 
 /*************************************************************
- * Description: Get system clock source currently in operation.
+ * Description: Select system clock, and wait until it is used. (with timeout).
+ * 					Note: System clock must be [ON] beforehand.
  * Parameters:
- *      [X]
+ *      [1] System clock option.
  * Return:
- *      Error Status.
+ *      Status:
+ *      	[status_Ok] - System clock has been switched to.
+ *      	[status_Timeout] - System clock has not been switched to.
  *************************************************************/
-void RCC_voidGetSysClk(RCC_tenuSysClk *Add_enuSysClk)
-{
-	*Add_enuSysClk = EXTRACT_FIELD(RCC->CFGR, SWS0, SWS1);
+RCC_status_t RCC_selectSystemClock(RCC_systemClock_t systemClock) {
+	RCC_status_t status = RCC_status_Ok;
+	uint16_t timeout = RCC_selectSystemClock_TIMEOUT;
+
+	RCC->CFGR = REPLACE_FIELD(RCC->CFGR, SW0, SW1, systemClock);
+
+	while (EXTRACT_FIELD(RCC->CFGR, SWS0, SWS1) != systemClock && --timeout > 0);
+
+	if (timeout == 0) {
+		status = RCC_status_Timeout;
+	}
+
+	return status;
 }
 
 
 /*************************************************************
- * Description: Set system clock source on and wait until ready.
+ * Description: Set system clock state.
  * Parameters:
- *      [X]
+ *      [1] System clock option.
+ *      [2] Clock state option.
+ * Return:
+ *      Status:
+ *      	[status_Ok] - System clock state altered.
+ *      	[status_Timeout] - Occurs when [clockState = ON], means failed
+ *      						to get system clock ready within time.
+ *************************************************************/
+RCC_status_t RCC_setSystemClockState(RCC_systemClock_t systemClock, RCC_clockState_t clockState) {
+	RCC_status_t status = RCC_status_Ok;
+	uint8_t bitON = 0;
+	uint8_t bitRDY = 0;
+	uint16_t timeout = RCC_setSystemClockState_TIMEOUT;
+
+	switch (systemClock) {
+	case RCC_systemClock_HSI:
+		bitON = HSION;
+		bitRDY = HSIRDY;
+		break;
+	case RCC_systemClock_HSE:
+		bitON = HSEON;
+		bitRDY = HSERDY;
+		break;
+	case RCC_systemClock_PLL:
+		bitON = PLLON;
+		bitRDY = PLLRDY;
+	}
+
+	if (clockState == RCC_clockState_On) {
+		RCC->CR = SET_BIT(RCC->CR, bitON);
+		while (!GET_BIT(RCC->CR, bitRDY) && --timeout > 0);
+	} else {
+		RCC->CR = CLR_BIT(RCC->CR, bitON);
+		while (GET_BIT(RCC->CR, bitON) && --timeout > 0);
+	}
+
+	if (timeout == 0) {
+		status = RCC_status_Timeout;
+	}
+
+	return status;
+}
+
+
+/*************************************************************
+ * Description: Set peripheral clock state.
+ * Parameters:
+ *      [1] Peripheral option.
+ *      [2] Clock state option.
  * Return:
  *      None.
  *************************************************************/
-static void RCC_voidSetSysClkOnAndWait(RCC_tenuSysClk Cpy_enuSysClk)
-{
-	u8 Loc_u8BitON = 0;
-	u8 Loc_u8BitRDY = 0;
+void RCC_setPeripheralClockState(RCC_peripheral_t peripheral, RCC_clockState_t clockState) {
+	volatile uint32_t *reg = &RCC->AHB1ENR + (peripheral >> 5);
 
-	switch (Cpy_enuSysClk)
-	{
-	case RCC_enuPLL:
-		Loc_u8BitON = PLLON;
-		Loc_u8BitRDY = PLLRDY;
-		break;
-	case RCC_enuHSE:
-		Loc_u8BitON = HSEON;
-		Loc_u8BitRDY = HSERDY;
-		break;
-	default:
-		Loc_u8BitON = HSION;
-		Loc_u8BitRDY = HSIRDY;
-	}
-
-	RCC->CR = SET_BIT(RCC->CR, Loc_u8BitON);   		/* Turn clock source on. */
-	while (!GET_BIT(RCC->CR, Loc_u8BitRDY));		/* Wait until it is ready. */
+	*reg = REPLACE_BIT(*reg, peripheral % 32, clockState);
 }
 
 
 /*************************************************************
- * Description: Set as system clock source.
+ * Description: Configure PLL, using the equation (Clock = (SourceClock * N) / (M * P)).
+ * 					Note: PLL must be [OFF] beforehand.
  * Parameters:
- *      [X]
+ *      [1] PLL source clock option.
+ *      [2] PLL factor (N), from [PLLFactorN_Min] to [PLLFactorN_Max].
+ *      [3] PLL prescale (M), from [PLLPrescaleM_Min] to [PLLPrescaleM_Max].
+ *      [4] PLL prescale (P) option.
  * Return:
- *      None.
+ *      Status:
+ *      	[status_Ok] - PLL configured.
+ *      	[status_PLLLocked] - Failed to configure, PLL is on.
  *************************************************************/
-void RCC_voidSetSysClk(RCC_tenuSysClk Cpy_enuSysClk)
-{
-	RCC_tenuSysClk Loc_enuCurrSysClk = RCC_enuHSI;
+RCC_status_t RCC_configurePLLClock(RCC_PLLSourceClock_t PLLSourceClock, uint16_t PLLFactorN, uint8_t PLLPrescaleM, RCC_PLLPrescaleP_t PLLPrescaleP) {
+	RCC_status_t status = RCC_status_Ok;
+	uint32_t regVal = 0;
 
-	RCC_voidSetSysClkOnAndWait(Cpy_enuSysClk);												/* Turn on and wait */
-	RCC->CFGR = REPLACE_FIELD(RCC->CFGR, SW0, SW1, Cpy_enuSysClk);    						/* Select SysClk (SW) */
+	if (PLLFactorN < RCC_PLLFactorN_Min || PLLFactorN > RCC_PLLFactorN_Max ||
+			PLLPrescaleM < RCC_PLLPrescaleM_Min || PLLPrescaleM > RCC_PLLPrescaleM_Max) {
+		status = RCC_status_InvalidConfiguration;
+	} else if (GET_BIT(RCC->CR, PLLON)) {
+		status = RCC_status_PLLLocked;
+	} else {
+		regVal = RCC->PLLCFGR;
+		regVal = REPLACE_FIELD(regVal, PLLM0, PLLM5, PLLPrescaleM);
+		regVal = REPLACE_FIELD(regVal, PLLN0, PLLN8, PLLFactorN);
+		regVal = REPLACE_FIELD(regVal, PLLP0, PLLP1, PLLPrescaleP);
+		regVal = REPLACE_BIT(regVal, PLLSRC, PLLSourceClock);
+		RCC->PLLCFGR = regVal;
+	}
 
-	do {
-		RCC_voidGetSysClk(&Loc_enuCurrSysClk);												/* Wait until operating (SWS) */
-	} while (Loc_enuCurrSysClk != Cpy_enuSysClk);
+	return status;
 }
 
 
 /*************************************************************
- * Description: Set PLL as system clock source.
+ * Description: Configure bus clock.
  * Parameters:
- *   	[X]
+ *      [1] Bus type option.
+ *      [2] Bus-specific prescale option.
  * Return:
- *      Error Status.
+ *      None
  *************************************************************/
-RCC_tenuErrorStatus RCC_enuSetPLLAsSysClk(RCC_tenuSysClk Cpy_enuSrcClk, u8 Cpy_u8PrescaleM, u16 Cpy_u16FactorN, RCC_tenuPLLP Cpy_enuPrescaleP)
-{
-	RCC_tenuErrorStatus Loc_enuErrorStatus = RCC_enuOk;
-	RCC_tenuSysClk Loc_enuCurrSysClk = RCC_enuHSI;
-	u32 Loc_u32PLLCFGR = 0;
-
-	if (Cpy_enuSrcClk == RCC_enuPLL || Cpy_u8PrescaleM < RCC_PLLM_MIN || Cpy_u8PrescaleM > RCC_PLLM_MAX || Cpy_u16FactorN < RCC_PLLN_MIN || Cpy_u16FactorN > RCC_PLLN_MAX)
-	{
-		Loc_enuErrorStatus = RCC_enuInvalidPLLCfg;   	/* Error: Invalid srcCLK, PLLM, or PLLN values */
+void RCC_configureBusClock(RCC_bus_t bus, RCC_busPrescale_t busPrescale) {
+	switch (bus) {
+	case RCC_bus_AHB:
+		RCC->CFGR = REPLACE_FIELD(RCC->CFGR, HPRE0, HPRE3, busPrescale);
+		break;
+	case RCC_bus_APB1:
+		RCC->CFGR = REPLACE_FIELD(RCC->CFGR, PPRE10, PPRE12, busPrescale);
+		break;
+	case RCC_bus_APB2:
+		RCC->CFGR = REPLACE_FIELD(RCC->CFGR, PPRE20, PPRE22, busPrescale);
+		break;
 	}
-	else
-	{
-		RCC_voidGetSysClk(&Loc_enuCurrSysClk);  		/* Get current SysClk */
-
-		if (Loc_enuCurrSysClk == RCC_enuPLL)			/* If PLL is currently operating ... */
-		{
-			RCC_voidSetSysClk(Cpy_enuSrcClk);				/* Turn on and switch to source clock */
-		}
-		else
-		{
-			RCC_voidSetSysClkOnAndWait(Cpy_enuSrcClk);   	/* Turn on source clock only */
-		}
-
-		RCC->CR = CLR_BIT(RCC->CR, PLLON);				/* 	Turn PLL off. */
-
-														/* Finally, configure PLL */
-		Loc_u32PLLCFGR = RCC->PLLCFGR;
-		Loc_u32PLLCFGR = REPLACE_FIELD(Loc_u32PLLCFGR, PLLM0, PLLM5, Cpy_u8PrescaleM);
-		Loc_u32PLLCFGR = REPLACE_FIELD(Loc_u32PLLCFGR, PLLN0, PLLN8, Cpy_u16FactorN);
-		Loc_u32PLLCFGR = REPLACE_FIELD(Loc_u32PLLCFGR, PLLP0, PLLP1, Cpy_enuPrescaleP);
-		Loc_u32PLLCFGR = REPLACE_BIT(Loc_u32PLLCFGR, PLLSRC, Cpy_enuSrcClk);
-		RCC->PLLCFGR = Loc_u32PLLCFGR;
-
-		RCC_voidSetSysClk(RCC_enuPLL);
-	}
-
-	return Loc_enuErrorStatus;
 }
