@@ -29,7 +29,7 @@
  * Description: Get mask, from bit 'I' to bit 'J', all inclusive.
  * 
  *************************************************************/
-#define MSK_I2J(I, J)               (((1 << (I + 1)) - 1) ^ ((1 << J) - 1))
+#define MSK_I2J(I, J)               (((1 << ((J) + 1)) - 1) ^ ((1 << (I)) - 1))
 
 
 /*************************************************************
@@ -100,14 +100,14 @@
  * Description: Extract a bit field from a register of arbitrary size.
  * 
  *************************************************************/
-#define EXTRACT_FIELD(REG, I, J)                ((MSK_I2J((J), (I)) & (REG)) >> (I))
+#define EXTRACT_FIELD(REG, I, J)                ((MSK_I2J((I), (J)) & (REG)) >> (I))
 
 
 /*************************************************************
  * Description: Replace a bit field with another bit field in a register of arbitrary size.
  * 
  *************************************************************/
-#define REPLACE_FIELD(REG, I, J, FIELD)         ((FIELD) << (I)) | ((REG) & ~MSK_I2J((J), (I)));
+#define REPLACE_FIELD(REG, I, J, FIELD)         ( ((FIELD) << (I)) | ((REG) & ~MSK_I2J((I), (J))) )
 #define REPLACE_BIT(REG, I, FIELD)              REPLACE_FIELD(REG, I, I, FIELD)
 
 

@@ -11,7 +11,6 @@
 #include "RCC_Map.h"
 #include "RCC.h"
 #include "RCC_Priv.h"
-#include "RCC_Cfg.h"
 #include "UTIL/Bit_Utils.h"
 
 
