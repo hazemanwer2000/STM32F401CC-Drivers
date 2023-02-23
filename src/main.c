@@ -1,19 +1,16 @@
 
 #include "MCAL/RCC/RCC.h"
-#include "MCAL/GPIO/GPIO.h"
+#include "HAL/LED/LED.h"
+#include "HAL/BUTTON/BUTTON.h"
 
 void main(void) {
+	volatile BUTTON_state_t state = 2;
+
 	RCC_setPeripheralClockState(RCC_peripheral_GPIOA, RCC_clockState_On);
+	BUTTON_init();
 
-	GPIO_pinConfiguration_t pinCfg = {
-		.port = GPIOA,
-		.pinNumber = GPIO_pinNumber_0,
-		.pinMode = GPIO_mode_Output_OpenDrain_PullUp,
-		.pinSpeed = GPIO_speed_VeryHigh
-	};
-
-	GPIO_initializePin(&pinCfg);
-
-	GPIO_selectAF(GPIOA, GPIO_pinNumber_11, GPIO_AF_7);
-	GPIO_selectAF(GPIOA, GPIO_pinNumber_2, GPIO_AF_7);
+	state = BUTTON_get(BUTTON_name_0);
+	state = BUTTON_get(BUTTON_name_1);
+	state = BUTTON_get(BUTTON_name_2);
+	state = BUTTON_get(BUTTON_name_3);
 }

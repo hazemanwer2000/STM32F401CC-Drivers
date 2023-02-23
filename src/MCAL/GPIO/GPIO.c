@@ -119,7 +119,7 @@ void GPIO_setPortValue(GPIO_port_t port, uint16_t value) {
  *      Pin state option.
  *************************************************************/
 GPIO_pinState_t GPIO_readPinState(GPIO_port_t port, GPIO_pinNumber_t pinNumber) {
-	return GET_BIT(port->ODR, pinNumber);
+	return GET_BIT(port->IDR, pinNumber);
 }
 
 
@@ -131,5 +131,5 @@ GPIO_pinState_t GPIO_readPinState(GPIO_port_t port, GPIO_pinNumber_t pinNumber) 
  *      Value.
  *************************************************************/
 uint16_t GPIO_readPortValue(GPIO_port_t port) {
-	return port->ODR;
+	return port->IDR;
 }
