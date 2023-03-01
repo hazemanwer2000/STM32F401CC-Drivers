@@ -51,7 +51,7 @@ void GPIO_initializePin(GPIO_pinConfiguration_t *pinConfiguration) {
  *************************************************************/
 void GPIO_selectAF(GPIO_port_t port, GPIO_pinNumber_t pinNumber, GPIO_AF_t AF) {
 	uint8_t bitIAF = (pinNumber % 8) * SIZE_AF;
-	volatile uint16_t *reg = (pinNumber < 8 ? &port->AFRL : &port->AFRH);
+	volatile uint32_t *reg = (pinNumber < 8 ? &port->AFRL : &port->AFRH);
 
 	*reg = REPLACE_FIELD(*reg, bitIAF, bitIAF + (SIZE_AF - 1), AF);
 }
