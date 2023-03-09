@@ -201,6 +201,17 @@ void GPIO_selectAF(GPIO_port_t port, GPIO_pinNumber_t pinNumber, GPIO_AF_t AF);
 
 
 /*************************************************************
+ * Description: Toggle (output) pin.
+ * Parameters:
+ * 		[1] Port option.
+ *      [2] Pin mask option (may be OR'd).
+ * Return:
+ *      None.
+ *************************************************************/
+void GPIO_togglePin(GPIO_port_t port, GPIO_pinMask_t pinMask);
+
+
+/*************************************************************
  * Description: Set (output) pin.
  * Parameters:
  * 		[1] Port option.

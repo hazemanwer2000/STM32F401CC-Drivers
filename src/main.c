@@ -5,14 +5,68 @@ const uint32_t var1 = 0xF0F0F0FF;
 */
 
 #include "MCAL/NVIC/NVIC.h"
+#include "MCAL/GPIO/GPIO.h"
+#include "MCAL/RCC/RCC.h"
+#include "MCAL/SYSTICK/SYSTICK.h"
+#include "MCAL/UTIL/Std_Types.h"
 
 #define __DEBUG_BKPT()  asm volatile ("bkpt 0")
 
-void main(void) {
-	NVIC_enableInterrupt(NVIC_interruptNumber_ADC);
-	NVIC_setPendingStatus(NVIC_interruptNumber_ADC);
+volatile uint8_t random = 0;
 
-	NVIC_triggerInterrupt(NVIC_interruptNumber_ADC);
+RCC_status_t init_RCC() {
+	RCC_status_t status = RCC_status_Ok;
+
+	status = RCC_setSystemClockState(RCC_systemClock_HSE, RCC_clockState_On);
+	if (status == RCC_status_Ok) {
+		status = RCC_selectSystemClock(RCC_systemClock_HSE);
+		if (status == RCC_status_Ok) {
+			RCC_configureBusClock(RCC_bus_AHB, RCC_busPrescale_AHB_1);
+			RCC_configureBusClock(RCC_bus_APB1, RCC_busPrescale_APB_1);
+			RCC_configureBusClock(RCC_bus_APB2, RCC_busPrescale_APB_1);
+		}
+	}
+
+	return status;
+}
+
+void init_GPIO() {
+	GPIO_pinConfiguration_t pinCfg = {GPIOA, GPIO_pinNumber_0, GPIO_speed_High, GPIO_mode_Output_PushPull_Float};
+
+	RCC_setPeripheralClockState(RCC_peripheral_GPIOA, RCC_clockState_On);
+	GPIO_initializePin(&pinCfg);
+	GPIO_resetPin(GPIOA, GPIO_pinMask_0);
+}
+
+void init_SYSTICK() {
+	SYSTICK_enableException();
+	SYSTICK_configureClockSource(SYSTICK_clockSource_AHB);
+	SYSTICK_setPeriod_us(500000);
+}
+
+void main(void) {
+	if (init_RCC() == RCC_status_Ok) {
+		init_GPIO();
+		init_SYSTICK();
+	}
+
+	SYSTICK_enable();
+
+	while (1) {
+		random = !random;
+	}
+}
+
+uint64_t counter = 0;
+
+void __attribute__ ((section(".after_vectors"),weak))
+SysTick_Handler (void) {
+	// __DEBUG_BKPT();
+	counter++;
+
+	if (counter % 10 == 0) {
+		GPIO_togglePin(GPIOA, GPIO_pinMask_0);
+	}
 }
 
 void __attribute__ ((section(".after_vectors")))

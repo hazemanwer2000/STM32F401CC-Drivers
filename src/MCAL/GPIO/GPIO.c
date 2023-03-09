@@ -29,8 +29,9 @@ void GPIO_initializePin(GPIO_pinConfiguration_t *pinConfiguration) {
 	pinConfiguration->port->OSPEEDR = REPLACE_FIELD(pinConfiguration->port->OSPEEDR,
 			bitISPEED, bitISPEED + (SIZE_SPEED - 1), pinConfiguration->pinSpeed);
 
-	pinConfiguration->port->MODER = REPLACE_FIELD(pinConfiguration->port->MODER,
-			bitIMODE, bitIMODE + (SIZE_MODE - 1), (pinConfiguration->pinMode >> GPIO_OFFSET_MODE) & MSK_I2J(0, SIZE_SPEED - 1));
+	volatile uint32_t var =  REPLACE_FIELD(pinConfiguration->port->MODER,
+			bitIMODE, bitIMODE + (SIZE_MODE - 1), (pinConfiguration->pinMode >> GPIO_OFFSET_MODE) & MSK_I2J(0, SIZE_MODE - 1));
+	pinConfiguration->port->MODER = var;
 
 	pinConfiguration->port->PUPDR = REPLACE_FIELD(pinConfiguration->port->PUPDR,
 			bitIPUPD, bitIPUPD + (SIZE_PUPD - 1), (pinConfiguration->pinMode >> GPIO_OFFSET_PULL_TYPE) & MSK_I2J(0, SIZE_PUPD - 1));
@@ -54,6 +55,19 @@ void GPIO_selectAF(GPIO_port_t port, GPIO_pinNumber_t pinNumber, GPIO_AF_t AF) {
 	volatile uint32_t *reg = (pinNumber < 8 ? &port->AFRL : &port->AFRH);
 
 	*reg = REPLACE_FIELD(*reg, bitIAF, bitIAF + (SIZE_AF - 1), AF);
+}
+
+
+/*************************************************************
+ * Description: Toggle (output) pin.
+ * Parameters:
+ * 		[1] Port option.
+ *      [2] Pin mask option (may be OR'd).
+ * Return:
+ *      None.
+ *************************************************************/
+void GPIO_togglePin(GPIO_port_t port, GPIO_pinMask_t pinMask) {
+	port->ODR ^= pinMask;
 }
 
 
