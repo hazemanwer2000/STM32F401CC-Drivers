@@ -10,7 +10,7 @@
 #ifndef __NVIC_PRIV_H__
 #define __NVIC_PRIV_H__
 
-#include "UTIL/Bit_Utils.h"
+#include "Bit_Utils.h"
 
 
 /*************************************************************

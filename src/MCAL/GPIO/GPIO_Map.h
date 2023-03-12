@@ -10,7 +10,7 @@
 #ifndef __GPIO_CFG_H__
 #define __GPIO_CFG_H__
 
-#include "MCAL/UTIL/Std_Types.h"
+#include "Std_Types.h"
 
 
 /*************************************************************
@@ -30,7 +30,7 @@ typedef struct {
 
 	uint32_t AFRL;
 	uint32_t AFRH;
-} __attribute__((packed, aligned(1))) GPIO_t;
+} __attribute__((packed, aligned(4))) GPIO_t;
 
 
 /*************************************************************

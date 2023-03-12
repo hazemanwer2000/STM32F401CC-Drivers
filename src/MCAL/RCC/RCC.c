@@ -7,11 +7,11 @@
  * 
  *************************************************************/
 
-#include "MCAL/UTIL/Std_Types.h"
+#include "Std_Types.h"
 #include "RCC_Map.h"
 #include "RCC.h"
 #include "RCC_Priv.h"
-#include "UTIL/Bit_Utils.h"
+#include "Bit_Utils.h"
 
 
 /*************************************************************

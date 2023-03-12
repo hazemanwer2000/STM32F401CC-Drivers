@@ -10,7 +10,7 @@
 #ifndef __SYSTICK_TYPES_H__
 #define __SYSTICK_TYPES_H__
 
-#include "MCAL/UTIL/Std_Types.h"
+#include "Std_Types.h"
 
 
 /*************************************************************

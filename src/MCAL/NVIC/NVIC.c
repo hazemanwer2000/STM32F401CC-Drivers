@@ -11,7 +11,7 @@
 #include "NVIC_Types.h"
 #include "NVIC.h"
 #include "NVIC_Map.h"
-#include "MCAL/UTIL/Std_Types.h"
+#include "Std_Types.h"
 
 
 /*************************************************************
@@ -22,7 +22,7 @@
  * 		None.
  *************************************************************/
 void NVIC_setPriorityGrouping(NVIC_priorityGrouping_t priorityGrouping) {
-	AIRCR = (AIRCR & ~(MSK_I2J(PRIGROUP0, PRIGROUP2) | MSK_I2J(16, 31))) | priorityGrouping;
+	AIRCR = (AIRCR & ~(MSK_I2J(PRIGROUP0, PRIGROUP2) | 0xFFFF0000)) | priorityGrouping;
 }
 
 

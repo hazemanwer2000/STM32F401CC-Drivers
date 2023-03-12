@@ -10,7 +10,7 @@
 #include "GPIO_Map.h"
 #include "GPIO_Priv.h"
 #include "GPIO.h"
-#include "UTIL/Bit_Utils.h"
+#include "Bit_Utils.h"
 
 
 /*************************************************************

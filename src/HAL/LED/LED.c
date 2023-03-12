@@ -11,7 +11,7 @@
 #include "LED_Priv.h"
 #include "LED_Types.h"
 #include "LED.h"
-#include "MCAL/GPIO/GPIO.h"
+#include "GPIO.h"
 
 
 /*************************************************************

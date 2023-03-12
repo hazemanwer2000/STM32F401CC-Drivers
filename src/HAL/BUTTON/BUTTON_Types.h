@@ -10,8 +10,8 @@
 #ifndef __BUTTON_TYPES_H__
 #define __BUTTON_TYPES_H__
 
-#include "MCAL/GPIO/GPIO.h"
-#include "MCAL/UTIL/Std_Types.h"
+#include "GPIO.h"
+#include "Std_Types.h"
 
 
 /*************************************************************

@@ -10,7 +10,7 @@
 #ifndef __RCC_H__
 #define __RCC_H__
 
-#include "MCAL/UTIL/Std_Types.h"
+#include "Std_Types.h"
 #include "RCC_Map.h"
 
 

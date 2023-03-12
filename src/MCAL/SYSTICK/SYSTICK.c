@@ -12,7 +12,7 @@
 #include "SYSTICK_Types.h"
 #include "SYSTICK_Map.h"
 #include "SYSTICK.h"
-#include "UTIL/Bit_Utils.h"
+#include "Bit_Utils.h"
 
 
 /*************************************************************

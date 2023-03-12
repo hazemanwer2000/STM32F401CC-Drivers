@@ -10,7 +10,7 @@
 #include "BUTTON_Cfg.h"
 #include "BUTTON_Types.h"
 #include "BUTTON.h"
-#include "MCAL/GPIO/GPIO.h"
+#include "GPIO.h"
 
 
 /*************************************************************

@@ -11,7 +11,7 @@
 #ifndef __RCC_MAP_H__
 #define __RCC_MAP_H__
 
-#include "MCAL/UTIL/Std_Types.h"
+#include "Std_Types.h"
 
 
 /*************************************************************
@@ -65,7 +65,7 @@ typedef struct {
 	uint32_t RESERVED7[1];
 
 	uint32_t DCKCFGR;
-} __attribute__((packed, aligned(1))) RCC_t;
+} __attribute__((packed, aligned(4))) RCC_t;
 
 
 
