@@ -28,7 +28,7 @@ _start(void) {
         /* Re-locate vector table */
     (*(volatile unsigned int *) 0xE000ED08) = (unsigned int) &__vectors_start;
 
-    _initialize_data(&__idata_start, &__data_start, &__idata_start);
+    _initialize_data(&__idata_start, &__data_start, &__data_end);
     _initialize_bss(&__bss_start, &__bss_end);
     
     main();

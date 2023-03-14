@@ -39,7 +39,7 @@ SPECS := -mcpu=cortex-m4 -mthumb -mfloat-abi=hard
 # Compiler, pre-processor, and linker flags
 CFLAGS := $(SPECS) -Wall -std=c99 -g3 -Og -fno-move-loop-invariants -ffunction-sections -fdata-sections -nostartfiles -ffreestanding --specs=nano.specs
 PPFLAGS := $(HDR_DIRS)
-LDFLAGS := -Wl,-Map,$(TARGET).map -Wl,--gc-sections -T mem.ld -T sections.ld -L./_ldscripts
+LDFLAGS := -Wl,-Map,$(TARGET).map -Wl,--gc-sections -T mem.ld -T sections.ld -L./__ldscripts
 
 .PHONY: clean build $(ASMS) $(PRES)
 
